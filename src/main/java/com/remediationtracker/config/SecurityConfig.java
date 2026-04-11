@@ -15,10 +15,11 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
+        http 
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
     .requestMatchers("/register/**").permitAll()
+    .requestMatchers("/vulnerabilities/**").authenticated()  
 
     .requestMatchers("/admin/**").hasRole("ADMIN")
     .requestMatchers("/analyst/**").hasAnyRole("ADMIN", "ANALYST")
@@ -30,13 +31,13 @@ public class SecurityConfig {
    
     .anyRequest().authenticated()
             )
-
-            .formLogin(form -> form.permitAll()
-            )
-
-            .logout(logout -> logout.permitAll()
-            );
-
+        .httpBasic(httpBasic -> {}) // for auth in Postman
+        .formLogin(form -> form.disable())
+        .logout(logout -> logout.permitAll());
+        http.headers(headers -> headers.frameOptions(frameOptionsConfig -> {
+            frameOptionsConfig.disable();
+            frameOptionsConfig.sameOrigin(); 
+        }));// Fix for H2 console access
         return http.build();
     }
 
