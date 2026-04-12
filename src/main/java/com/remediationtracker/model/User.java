@@ -1,6 +1,7 @@
 package com.remediationtracker.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 
 @Entity
 @Table(name = "users")
@@ -11,11 +12,16 @@ public class User {
     private Long id;
 
     @Column(unique = true, nullable = false)
+    @NotBlank
     private String username;
 
+    @Email
+    @NotBlank
     private String email;
 
     @Column(nullable = false)
+    @NotBlank
+    @Size(min = 6, message = "Password must be at least 6 characters")
     private String password;
 
     @Enumerated(EnumType.STRING)
