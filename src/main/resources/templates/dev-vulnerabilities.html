@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>My Vulnerabilities – Remediation Tracker</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+
+<nav class="navbar navbar-dark bg-dark px-3">
+    <a class="navbar-brand" th:href="@{/dashboard}">🛡️ Remediation Tracker</a>
+    <div class="d-flex align-items-center gap-3">
+        <span class="text-white">Hello, <strong sec:authentication="name"></strong></span>
+        <a th:href="@{/dashboard}" class="btn btn-outline-light btn-sm">Dashboard</a>
+        <form th:action="@{/logout}" method="post" class="m-0">
+            <button class="btn btn-outline-danger btn-sm" type="submit">Logout</button>
+        </form>
+    </div>
+</nav>
+
+<div class="container mt-4">
+
+    <h3>🔧 My Assigned Vulnerabilities</h3>
+    <p class="text-muted">These are the vulnerabilities assigned to you. Update the status as you work through them.</p>
+
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+
+    <!-- ── ASSIGNED VULNERABILITIES TABLE ──────────────────────────── -->
+    <table class="table table-bordered table-hover bg-white">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Severity</th>
+                <th>Current Status</th>
+                <th>Update Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!--
+                'myVulnerabilities' is set by the controller:
+                model.addAttribute("myVulnerabilities", vulnService.getVulnerabilitiesForUser(currentUser))
+            -->
+            <tr th:each="vuln : ${myVulnerabilities}">
+                <td th:text="${vuln.id}"></td>
+                <td th:text="${vuln.title}"></td>
+
+                <td>
+                    <span th:text="${vuln.severity}"
+                          th:classappend="${vuln.severity == 'CRITICAL'} ? 'badge bg-danger' :
+                                          (${vuln.severity == 'HIGH'}     ? 'badge bg-warning text-dark' :
+                                          (${vuln.severity == 'MEDIUM'}   ? 'badge bg-info text-dark' : 'badge bg-secondary'))">
+                    </span>
+                </td>
+
+                <td>
+                    <span th:text="${vuln.status}"
+                          th:classappend="${vuln.status == 'OPEN'}        ? 'badge bg-danger' :
+                                          (${vuln.status == 'IN_PROGRESS'}? 'badge bg-warning text-dark' : 'badge bg-success')">
+                    </span>
+                </td>
+
+                <!-- ── INLINE STATUS UPDATE FORM (the "remediation update action") ── -->
+                <!--
+                    Each row has its own mini-form. It posts to /dev/update/{id}
+                    with just the new status value — no need to go to a separate page.
+
+                    This is the "remediation update action" the screenshot requires:
+                    Developer sees their list and updates status right here in the row.
+                -->
+                <td>
+                    <form th:action="@{/dev/update/{id}(id=${vuln.id})}" method="post"
+                          class="d-inline-flex gap-1">
+                        <select name="status" class="form-select form-select-sm" style="width:150px;">
+                            <option value="OPEN"
+                                    th:selected="${vuln.status == 'OPEN'}">Open</option>
+                            <option value="IN_PROGRESS"
+                                    th:selected="${vuln.status == 'IN_PROGRESS'}">In Progress</option>
+                            <option value="RESOLVED"
+                                    th:selected="${vuln.status == 'RESOLVED'}">Resolved</option>
+                        </select>
+                        <button type="submit" class="btn btn-sm btn-primary">Save</button>
+                    </form>
+                </td>
+            </tr>
+
+            <tr th:if="${#lists.isEmpty(myVulnerabilities)}">
+                <td colspan="5" class="text-center text-muted">
+                    No vulnerabilities assigned to you yet.
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+</div>
+</body>
+</html>
