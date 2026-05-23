@@ -3,7 +3,6 @@
 A secure, role-based web application for creating, assigning, tracking, and auditing vulnerability findings.  
 Built to demonstrate **secure web development practices** (authentication, authorization, validation, auditing, and secure error handling) in a realistic vulnerability management workflow.
 
-- **Video demo (unlisted):** [PASTE_YOUTUBE_LINK_HERE]
 - **Report:** Included in submission (NCI template)
 - **Tech stack:** Spring Boot, Spring Security, Thymeleaf, Spring Data JPA, H2 (file-based)
 
